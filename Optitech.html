@@ -1,0 +1,1587 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset=utf8>
+  <meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <style>
+    :root {
+      color-scheme: light;
+      box-sizing: border-box;
+      padding-top: env(safe-area-inset-top, 0px);
+      padding-bottom: env(safe-area-inset-bottom, 0px)
+    }
+
+    html {
+      scroll-padding-top: env(safe-area-inset-top, 0px)
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font: 14px -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #fff;
+      color: #000
+    }
+
+    img {
+      max-width: 100%
+    }
+
+    [hidden]:not([hidden=until-found i]) {
+      display: none !important
+    }
+  </style>
+</head>
+
+<body>
+  <title>Optitech</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Fredoka:wght@500;600;700&display=swap"
+    rel="stylesheet">
+  <style>
+    /* Layout: one pinned 100vh stage inside a 520vh scroll runway. Waves, splash, bottle canvas, fruit and copy are stacked layers driven by one scrubbed GSAP timeline (0-100 units). */
+    :root {
+      --wine-deep: #4a0715;
+      --wine: #7a0f2b;
+      --berry: #d92a4f;
+      --blush: #fce4ec;
+      --cream: #fff3ee;
+      --ink: #0e0306;
+      --font-display: "Fredoka", "Baloo 2", ui-rounded, "Arial Rounded MT Bold", system-ui, sans-serif;
+      --font-body: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+      --gut: clamp(16px, 4vw, 56px);
+      --fm: 1;
+      --bm: 1;
+      --k: 1;
+      color-scheme: dark;
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    html.lenis,
+    html.lenis body {
+      height: auto
+    }
+
+    .lenis.lenis-smooth {
+      scroll-behavior: auto !important
+    }
+
+    body {
+      background: var(--wine-deep);
+      color: var(--cream);
+      font-family: var(--font-body);
+      font-size: 16px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: clip
+    }
+
+    button {
+      font: inherit;
+      cursor: pointer;
+      border: 0;
+      background: none;
+      color: inherit
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none
+    }
+
+    :focus-visible {
+      outline: 3px solid #fff;
+      outline-offset: 3px;
+      border-radius: 999px
+    }
+
+    .journey {
+      position: relative;
+      height: 520vh
+    }
+
+    .stage {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      height: 100svh;
+      overflow: hidden;
+      isolation: isolate
+    }
+
+    /* ---------- Layer 0: background ---------- */
+    .bg-intro {
+      position: absolute;
+      inset: 0;
+      transform-origin: 50% 60%
+    }
+
+    .bg-base {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(70% 62% at 50% 38%, #a4163a 0%, #6d0c25 52%, #4a0715 100%)
+    }
+
+    .wave {
+      position: absolute;
+      left: -3%;
+      width: 106%;
+      height: 170vh;
+      top: 0;
+      will-change: transform;
+      transform: translateZ(0)
+    }
+
+    .wave svg {
+      display: block;
+      width: 100%;
+      height: 100%
+    }
+
+    .glow {
+      position: absolute;
+      left: 50%;
+      top: 48%;
+      width: 70vmin;
+      height: 70vmin;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 214, 225, .55), rgba(255, 214, 225, 0) 66%);
+      pointer-events: none;
+      opacity: .35
+    }
+
+    /* ---------- fruit ---------- */
+    .fruits {
+      position: absolute;
+      inset: 0;
+      pointer-events: none
+    }
+
+    .fruits.bgf {
+      z-index: 1
+    }
+
+    .fruits.fgf {
+      z-index: 4
+    }
+
+    .fruit {
+      position: absolute;
+      width: max(calc(var(--s)*var(--fm)*1vw), 44px);
+      will-change: transform;
+      transform: translateZ(0)
+    }
+
+    .fruit-in,
+    .fruit-idle {
+      width: 100%
+    }
+
+    .fruit-idle {
+      filter: blur(calc(var(--b, 0)*var(--bm)*1px));
+      will-change: transform
+    }
+
+    .fruit svg {
+      display: block;
+      width: 100%;
+      height: auto;
+      overflow: visible;
+      filter: drop-shadow(0 .9vw 1.1vw rgba(40, 0, 15, .28))
+    }
+
+    .fruit-canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      aspect-ratio: 1/1;
+      pointer-events: none;
+      filter: drop-shadow(0 .9vw 1.1vw rgba(40, 0, 15, .28))
+    }
+
+    /* ---------- Layer 2: bottle ---------- */
+    .bottle-stage {
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+      pointer-events: none
+    }
+
+    .bottle-pos {
+      --bh: calc(min(76vh, 740px)*var(--k));
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: calc(var(--bh)*360/760);
+      height: var(--bh);
+      margin-left: calc(var(--bh)*-180/760);
+      margin-top: calc(var(--bh)*-.5);
+      will-change: transform;
+      transform: translateZ(0);
+    }
+
+    .bottle-float,
+    .bottle-intro {
+      position: absolute;
+      inset: 0;
+      will-change: transform
+    }
+
+    #bottle {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      display: block;
+      will-change: transform;
+      transform: translateZ(0)
+    }
+
+    .splash {
+      position: absolute;
+      left: 50%;
+      transform-origin: 50% 85%;
+      will-change: transform
+    }
+
+    .splash svg {
+      display: block;
+      width: 100%;
+      height: auto;
+      overflow: visible
+    }
+
+    .splash-canvas {
+      display: none
+    }
+
+    .splash-vector-fallback {
+      display: none
+    }
+
+    .splash-back {
+      width: 240%;
+      margin-left: -120%;
+      top: 6%;
+      z-index: 0;
+      pointer-events: none;
+      will-change: transform;
+      transform: translateZ(0)
+    }
+
+    .splash-wave-img {
+      display: block;
+      width: 100%;
+      height: auto;
+      filter: drop-shadow(0 18px 40px rgba(40, 0, 15, .35));
+      pointer-events: none;
+      transform-origin: 46% 72%;
+      will-change: transform
+    }
+
+    .splash-front {
+      display: none
+    }
+
+    .pulse {
+      display: block;
+      width: 100%;
+      transform-origin: 50% 80%;
+      will-change: transform
+    }
+
+    /* ---------- Layer 4: UI ---------- */
+    .hdr {
+      --hfg: rgb(255, 243, 238);
+      --hcta-bg: rgb(255, 243, 238);
+      --hcta-fg: rgb(122, 15, 43);
+      --hpill: rgba(255, 243, 238, .14);
+      position: absolute;
+      z-index: 20;
+      top: 18px;
+      left: var(--gut);
+      right: var(--gut);
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 12px;
+      color: var(--hfg)
+    }
+
+    .logo {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1.45rem;
+      letter-spacing: -.01em
+    }
+
+    .pills {
+      display: flex;
+      gap: 2px;
+      padding: 4px;
+      border-radius: 999px;
+      background: var(--hpill);
+      border: 1px solid color-mix(in srgb, var(--hfg) 22%, transparent);
+      backdrop-filter: blur(8px)
+    }
+
+    .pills a {
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-weight: 500;
+      font-size: .82rem
+    }
+
+    .pills a:hover {
+      background: color-mix(in srgb, var(--hfg) 16%, transparent)
+    }
+
+    .hdr .cta {
+      justify-self: end;
+      padding: 9px 20px;
+      border-radius: 999px;
+      background: var(--hcta-bg);
+      color: var(--hcta-fg);
+      font-weight: 700;
+      font-size: .85rem
+    }
+
+    .copy {
+      position: absolute;
+      z-index: 10
+    }
+
+    .s2,
+    .s3 {
+      visibility: hidden;
+      opacity: 0
+    }
+
+    .hero-title {
+      left: var(--gut);
+      top: 15vh;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: clamp(3rem, 8.4vw, 8.6rem);
+      line-height: .94;
+      letter-spacing: -.02em;
+      margin: 0;
+      text-wrap: balance
+    }
+
+    .hero-word {
+      right: var(--gut);
+      top: 24vh;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: clamp(2.8rem, 7.4vw, 7.6rem);
+      line-height: 1;
+      letter-spacing: -.02em;
+      margin: 0
+    }
+
+    .cue {
+      left: 50%;
+      bottom: 5vh;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      font-weight: 500;
+      font-size: .85rem;
+      white-space: nowrap
+    }
+
+    .cue i {
+      font-style: normal;
+      font-size: 1.2rem;
+      animation: bob 1.8s ease-in-out infinite
+    }
+
+    @keyframes bob {
+      50% {
+        transform: translateY(7px)
+      }
+    }
+
+    .s2 {
+      right: var(--gut);
+      top: 50%;
+      margin-top: -9rem;
+      width: min(34rem, 42vw);
+      color: var(--wine)
+    }
+
+    .s2 h2 {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: clamp(2.4rem, 5vw, 5rem);
+      line-height: 1;
+      letter-spacing: -.015em;
+      margin: 0 0 1rem;
+      text-wrap: balance
+    }
+
+    .s2 p {
+      margin: 0 0 1.6rem;
+      font-size: clamp(1rem, 1.5vw, 1.3rem);
+      font-weight: 500;
+      opacity: .85
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap
+    }
+
+    .round {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 1.5px solid var(--wine);
+      display: grid;
+      place-items: center;
+      font-size: 1rem;
+      color: var(--wine)
+    }
+
+    .round:hover {
+      background: var(--wine);
+      color: var(--cream)
+    }
+
+    .btn-dark {
+      padding: 12px 24px;
+      border-radius: 999px;
+      background: var(--ink);
+      color: #fff;
+      font-weight: 700;
+      font-size: .9rem
+    }
+
+    .btn-dark:hover {
+      background: #2a0310
+    }
+
+    .s3 {
+      left: var(--gut);
+      bottom: 12vh;
+      width: min(36rem, 46vw);
+      color: var(--cream)
+    }
+
+    .s3 h2 {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: clamp(2.6rem, 6vw, 6rem);
+      line-height: .98;
+      letter-spacing: -.02em;
+      margin: 0 0 1rem;
+      text-wrap: balance
+    }
+
+    .s3 p {
+      margin: 0 0 1.5rem;
+      font-size: clamp(1rem, 1.4vw, 1.2rem);
+      opacity: .85;
+      max-width: 28rem
+    }
+
+    .rating {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 1.4rem;
+      padding: 8px 16px;
+      border-radius: 999px;
+      background: rgba(255, 243, 238, .12);
+      border: 1px solid rgba(255, 243, 238, .28);
+      font-size: .85rem;
+      font-weight: 500
+    }
+
+    .rating b {
+      color: #ffd166;
+      letter-spacing: 2px;
+      font-size: .95rem
+    }
+
+    .price {
+      position: absolute;
+      z-index: 11;
+      visibility: hidden;
+      opacity: 0;
+      left: calc(50% + 30vw - clamp(150px, 19vw, 250px));
+      top: 46vh;
+      transform: rotate(-8deg);
+      background: var(--blush);
+      color: var(--wine);
+      border-radius: 22px 22px 22px 4px;
+      padding: 10px 20px 12px;
+      box-shadow: 0 12px 30px rgba(20, 0, 8, .35);
+      font-family: var(--font-display);
+      text-align: center
+    }
+
+    .price small {
+      display: block;
+      font-family: var(--font-body);
+      font-size: .7rem;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      font-weight: 700;
+      opacity: .7
+    }
+
+    .price strong {
+      display: block;
+      font-size: clamp(1.9rem, 3vw, 2.8rem);
+      line-height: 1;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums
+    }
+
+    .foot {
+      position: relative;
+      background: #33040f;
+      color: var(--cream);
+      padding: clamp(48px, 9vw, 110px) var(--gut) 40px
+    }
+
+    .foot-in {
+      max-width: 70rem;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 32px 48px;
+      align-items: end
+    }
+
+    .foot h2 {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: clamp(2.2rem, 5vw, 4.4rem);
+      line-height: 1;
+      margin: 0;
+      letter-spacing: -.02em;
+      text-wrap: balance
+    }
+
+    .foot p {
+      margin: 0 0 1rem;
+      opacity: .8;
+      max-width: 26rem
+    }
+
+    .foot .btn-cream {
+      display: inline-block;
+      padding: 12px 26px;
+      border-radius: 999px;
+      background: var(--cream);
+      color: var(--wine);
+      font-weight: 700
+    }
+
+    .foot small {
+      display: block;
+      max-width: 70rem;
+      margin: 56px auto 0;
+      opacity: .55;
+      font-size: .8rem
+    }
+
+    .foot-in>* {
+      min-width: 0
+    }
+
+    /* ---------- Loader ---------- */
+    .loader {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: radial-gradient(circle at 50% 45%, #6c0c27 0%, #4a0715 70%, #2a030d 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--cream);
+      font-family: var(--font-body);
+      transition: opacity .6s cubic-bezier(.16, 1, .3, 1), visibility .6s
+    }
+
+    .loader.is-loaded {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none
+    }
+
+    .loader-content {
+      text-align: center;
+      width: min(320px, 80vw)
+    }
+
+    .loader-brand {
+      font-family: var(--font-display);
+      font-size: 2.2rem;
+      font-weight: 700;
+      letter-spacing: -.02em;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, #fff3ee 0%, #fcd6e0 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent
+    }
+
+    .loader-track {
+      width: 100%;
+      height: 4px;
+      background: rgba(255, 243, 238, .16);
+      border-radius: 999px;
+      overflow: hidden;
+      position: relative
+    }
+
+    .loader-bar {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #d92a4f, #ff8fa6);
+      border-radius: 999px;
+      transition: width .12s ease-out
+    }
+
+    .loader-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 10px;
+      font-size: .8rem;
+      color: rgba(255, 243, 238, .7);
+      font-variant-numeric: tabular-nums
+    }
+
+    /* ---------- responsive ---------- */
+    @media (max-width:1023px) {
+      :root {
+        --k: .85;
+        --bm: .5;
+        --fm: 1.25
+      }
+
+      .s2 {
+        width: min(30rem, 46vw)
+      }
+    }
+
+    @media (max-width:767px) {
+      :root {
+        --k: .65;
+        --bm: 0;
+        --fm: 1.9
+      }
+
+      .pills {
+        display: none
+      }
+
+      .hdr {
+        grid-template-columns: 1fr auto
+      }
+
+      .hero-title {
+        top: 12vh;
+        font-size: clamp(2.8rem, 15vw, 4.4rem)
+      }
+
+      .hero-word {
+        right: auto;
+        left: var(--gut);
+        top: auto;
+        bottom: 14vh;
+        font-size: clamp(2.4rem, 13vw, 3.6rem)
+      }
+
+      .s2 {
+        right: var(--gut);
+        left: var(--gut);
+        top: auto;
+        bottom: 7vh;
+        margin-top: 0;
+        width: auto
+      }
+
+      .s2 h2 {
+        font-size: clamp(2.2rem, 11vw, 3.2rem)
+      }
+
+      .s3 {
+        left: var(--gut);
+        right: var(--gut);
+        bottom: 5vh;
+        width: auto
+      }
+
+      .s3 h2 {
+        font-size: clamp(2.2rem, 11vw, 3.2rem)
+      }
+
+      .s3 p {
+        margin-bottom: 1rem
+      }
+
+      .rating {
+        margin-top: .9rem
+      }
+
+      .price {
+        left: auto;
+        right: var(--gut);
+        top: 30vh
+      }
+
+      .xl {
+        display: none
+      }
+
+      .foot-in {
+        grid-template-columns: 1fr
+      }
+    }
+
+    @media (prefers-reduced-motion:reduce) {
+      .cue i {
+        animation: none
+      }
+    }
+  </style>
+
+  <div id="loader" class="loader" aria-live="polite" aria-label="Loading assets">
+    <div class="loader-content">
+      <div class="loader-brand">Optitech</div>
+      <div class="loader-track">
+        <div class="loader-bar" id="loaderBar"></div>
+      </div>
+      <div class="loader-meta">
+        <span class="loader-text">Blending freshness...</span>
+        <span class="loader-num" id="loaderNum">0%</span>
+      </div>
+    </div>
+  </div>
+
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <defs>
+      <radialGradient id="gBerry" cx=".38" cy=".3" r=".85">
+        <stop offset="0" stop-color="#ff6b87" />
+        <stop offset=".45" stop-color="#e3254b" />
+        <stop offset="1" stop-color="#a80f2c" />
+      </radialGradient>
+      <linearGradient id="gLeaf" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#6fcf5a" />
+        <stop offset="1" stop-color="#2e8a3a" />
+      </linearGradient>
+      <radialGradient id="gHalf" cx=".5" cy=".55" r=".6">
+        <stop offset="0" stop-color="#fff0f3" />
+        <stop offset=".55" stop-color="#ff8fa6" />
+        <stop offset="1" stop-color="#f0476a" />
+      </radialGradient>
+      <radialGradient id="gKiwi" cx=".5" cy=".5" r=".5">
+        <stop offset="0" stop-color="#e9f7b0" />
+        <stop offset=".45" stop-color="#a6d94f" />
+        <stop offset="1" stop-color="#5fa82e" />
+      </radialGradient>
+      <linearGradient id="gMilk" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#ffffff" />
+        <stop offset="1" stop-color="#f9d3de" />
+      </linearGradient>
+    </defs>
+  </svg>
+
+  <main>
+    <section class="journey" id="journey">
+      <div class="stage" id="stage">
+
+        <div class="bg-intro" id="bgIntro">
+          <div class="bg-base"></div>
+          <div class="wave wave-cream" id="waveCream">
+            <svg viewBox="0 0 1440 1000" preserveAspectRatio="none" aria-hidden="true">
+              <defs>
+                <linearGradient id="gCream" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stop-color="#fff4f6" />
+                  <stop offset=".35" stop-color="#fcd6e0" />
+                  <stop offset="1" stop-color="#f4a9bf" />
+                </linearGradient>
+              </defs>
+              <path d="M0 110C220 20 430 30 650 110S1080 210 1280 110C1360 70 1410 60 1440 70V1000H0Z"
+                fill="url(#gCream)" />
+              <path d="M0 200C260 130 470 240 720 200S1160 100 1440 180V1000H0Z" fill="#ffffff" opacity=".32" />
+            </svg>
+          </div>
+          <div class="wave wave-wine" id="waveWine">
+            <svg viewBox="0 0 1440 1000" preserveAspectRatio="none" aria-hidden="true">
+              <defs>
+                <linearGradient id="gWine" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stop-color="#9a1538" />
+                  <stop offset=".4" stop-color="#6c0c27" />
+                  <stop offset="1" stop-color="#4a0715" />
+                </linearGradient>
+              </defs>
+              <path d="M0 90C300 190 520 20 780 90S1200 190 1440 70V1000H0Z" fill="url(#gWine)" />
+              <path d="M0 150C300 250 520 90 780 150S1200 250 1440 130" fill="none" stroke="#e8486c"
+                stroke-opacity=".35" stroke-width="3" />
+            </svg>
+          </div>
+          <div class="glow" id="glow"></div>
+        </div>
+
+        <div class="fruits bgf" id="fruitsBack"></div>
+
+        <div class="bottle-stage">
+          <div class="bottle-pos" id="bottlePos">
+            <div class="bottle-float" id="bottleFloat">
+              <div class="bottle-intro" id="bottleIntro">
+                <div class="splash splash-back" id="splashBack">
+                  <div class="pulse">
+                    <img src="assets/milk_wave.webp" alt="Milk splash wave" class="splash-wave-img" id="milkWaveImg" />
+                  </div>
+                </div>
+                <canvas id="bottle" aria-label="Optitech Strawberry Milkshake bottle" role="img"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="fruits fgf" id="fruitsFront"></div>
+
+        <header class="hdr" id="hdr">
+          <a class="logo" href="#journey">Optitech</a>
+          <nav class="pills" aria-label="Primary"><a href="#journey" data-go="0">Products</a><a href="#journey"
+              data-go=".475">Experience</a><a href="#shop" data-go="1">About</a></nav>
+          <button class="cta" data-go="end">Shop Now</button>
+        </header>
+
+        <div class="s1" id="s1">
+          <h1 class="copy hero-title" id="heroTitle">Sip the future.</h1>
+          <div class="copy hero-word" id="heroWord" aria-hidden="true">Optitech</div>
+          <div class="copy cue" id="cue"><span>Scroll to Reveal</span><i aria-hidden="true">↓</i></div>
+        </div>
+
+        <div class="copy s2" id="s2">
+          <h2>Rich. Creamy. 100% Real.</h2>
+          <p>Discover the joy in every sip.</p>
+          <div class="row">
+            <button class="round" data-go="0" aria-label="Previous scene">←</button>
+            <button class="round" data-go="1" aria-label="Next scene">→</button>
+            <button class="btn-dark" data-go="1">Taste It</button>
+          </div>
+        </div>
+
+        <div class="copy s3" id="s3">
+          <h2>A whole new experience</h2>
+          <p>Your Strawberry Milkshake has travelled, spun and settled in. Cold, thick and ready.</p>
+          <button class="btn-dark" data-go="end">Explore Product</button><br>
+          <div class="rating"><b aria-hidden="true">★★★★★</b><span>4.9 rating</span></div>
+        </div>
+        <div class="price" id="price"><small>Price</small><strong>$5.99</strong></div>
+
+      </div>
+    </section>
+
+    <footer class="foot" id="shop">
+      <div class="foot-in">
+        <h2>Strawberry Milkshake, cold and ready.</h2>
+        <div>
+          <p>One bottle, real strawberries, real cream. $5.99 per bottle.</p>
+          <a class="btn-cream" href="#journey" data-go="0">Back to the top</a>
+        </div>
+      </div>
+      <small>© 2026 Optitech. All rights reserved.</small>
+    </footer>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
+  <script>
+    (function () {
+      'use strict';
+      var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var isMobileMedia = window.matchMedia('(max-width:767px)');
+      var TAU = Math.PI * 2;
+
+      /* ================= TUNABLE CONSTANTS ================= */
+      var TUNING = {
+        // Frame counts & directories
+        BOTTLE_FRAMES: 192,
+        STRAW_FRAMES: 90,
+        SPLASH_FRAMES: 90,
+
+        BOTTLE_DIR: 'frames/',
+        STRAW_DIR_DESK: 'assets/strawberry/',
+        STRAW_DIR_MOB: 'assets/strawberry-sm/',
+        SPLASH_DIR_DESK: 'assets/splash/',
+        SPLASH_DIR_MOB: 'assets/splash-sm/',
+
+        // Splash animation keyframes & timings
+        SPLASH_PEAK_FRAME: 44,       // 0-indexed peak frame (~frame 45)
+        SPLASH_BREATHE_RANGE: 12,    // ping-pong frame range (peak - 12 to peak + 12)
+        SPLASH_INTRO_DURATION: 1.8,  // seconds for intro burst
+        SPLASH_IDLE_DURATION: 2.6,   // seconds for full ping-pong breathing cycle
+        SPLASH_FRONT_OPACITY: 0.45,  // opacity of front splash wrapping bottle base (0 to hide)
+
+        // Strawberry idle rotation & scroll boost
+        STRAW_IDLE_SPEED_MIN: 18,    // seconds per full 360° turn (min)
+        STRAW_IDLE_SPEED_MAX: 25,    // seconds per full 360° turn (max)
+        STRAW_SCROLL_BOOST: 0.5,     // scroll-linked rotation multiplier
+
+        // DPR Caps
+        DPR_DESK: 2.0,
+        DPR_MOB: 1.5
+      };
+
+      /* ================= Vector Fallback Art ================= */
+      function berrySVG(leaf, half) {
+        var s = '<svg viewBox="0 -6 100 116" aria-hidden="true">';
+        var outline = 'M50 104C20 94 3 64 7 40C11 20 30 13 50 22C70 13 89 20 93 40C97 64 80 94 50 104Z';
+        if (half) {
+          s += '<path d="' + outline + '" fill="#d71f45"/>';
+          s += '<path d="' + outline + '" transform="translate(50 62) scale(.86) translate(-50 -62)" fill="url(#gHalf)"/>';
+          s += '<path d="M50 34C42 52 42 78 50 92C58 78 58 52 50 34Z" fill="#fff4f6" opacity=".9"/>';
+          s += '<path d="M50 62L24 46M50 66L20 68M50 62L76 46M50 66L80 68" stroke="#fff" stroke-width="1.6" stroke-linecap="round" opacity=".55"/>';
+        } else {
+          s += '<path d="' + outline + '" fill="url(#gBerry)"/>';
+          for (var y = 36; y <= 92; y += 13) {
+            for (var x = 22; x <= 78; x += 14) {
+              var xx = x + ((y / 13 | 0) % 2 ? 7 : 0);
+              var d = Math.pow((xx - 50) / 40, 2) + Math.pow((y - 62) / 40, 2);
+              if (d < .8) s += '<ellipse cx="' + xx + '" cy="' + y + '" rx="1.7" ry="2.6" fill="#ffe8a8" opacity=".9"/>';
+            }
+          }
+          s += '<ellipse cx="33" cy="40" rx="8" ry="14" transform="rotate(24 33 40)" fill="#fff" opacity=".3"/>';
+        }
+        if (leaf || half) {
+          s += '<path d="M50 24C34 6 14 12 10 24C24 24 38 30 50 24Z" fill="url(#gLeaf)"/>';
+          s += '<path d="M50 24C66 6 86 12 90 24C76 24 62 30 50 24Z" fill="url(#gLeaf)"/>';
+          s += '<path d="M50 24C42 10 44 0 50 -3C56 0 58 10 50 24Z" fill="url(#gLeaf)"/>';
+        }
+        return s + '</svg>';
+      }
+      function kiwiSVG() {
+        var s = '<svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="48" fill="#8a6a3a"/><circle cx="50" cy="50" r="44" fill="url(#gKiwi)"/>';
+        for (var i = 0; i < 24; i++) { var an = i / 24 * TAU; s += '<line x1="' + (50 + 14 * Math.cos(an)).toFixed(1) + '" y1="' + (50 + 14 * Math.sin(an)).toFixed(1) + '" x2="' + (50 + 38 * Math.cos(an)).toFixed(1) + '" y2="' + (50 + 38 * Math.sin(an)).toFixed(1) + '" stroke="#f3fbd0" stroke-opacity=".55" stroke-width="1.2"/>'; }
+        s += '<ellipse cx="50" cy="50" rx="13" ry="12" fill="#fbfff0"/>';
+        for (var j = 0; j < 14; j++) { var b = j / 14 * TAU; var cx = 50 + 22 * Math.cos(b), cy = 50 + 22 * Math.sin(b); s += '<ellipse cx="' + cx.toFixed(1) + '" cy="' + cy.toFixed(1) + '" rx="1.6" ry="3" fill="#1d1a14" transform="rotate(' + (b * 180 / Math.PI + 90).toFixed(0) + ' ' + cx.toFixed(1) + ' ' + cy.toFixed(1) + ')"/>'; }
+        return s + '</svg>';
+      }
+
+      /* ================= Aspect-Fit Canvas Helper ================= */
+      function drawAspectFit(targetCtx, img, cw, ch, alpha) {
+        targetCtx.clearRect(0, 0, cw, ch);
+        if (!img) return;
+        var iw = img.naturalWidth || img.width;
+        var ih = img.naturalHeight || img.height;
+        if (!iw || !ih) return;
+
+        var scale = Math.min(cw / iw, ch / ih);
+        var dw = iw * scale;
+        var dh = ih * scale;
+        var dx = (cw - dw) * 0.5;
+        var dy = (ch - dh) * 0.5;
+
+        targetCtx.save();
+        if (alpha !== undefined && alpha !== 1) {
+          targetCtx.globalAlpha = alpha;
+        }
+        targetCtx.drawImage(img, 0, 0, iw, ih, dx, dy, dw, dh);
+        targetCtx.restore();
+      }
+
+      /* ================= Shared Frame Cache ================= */
+      var bottleFrames = new Array(TUNING.BOTTLE_FRAMES);
+      var strawFrames = new Array(TUNING.STRAW_FRAMES);
+
+      var totalAssets = TUNING.BOTTLE_FRAMES + TUNING.STRAW_FRAMES + 1; // bottle (192) + strawberry (90) + milk wave (1)
+      var loadedAssets = 0;
+      var allAssetsReady = false;
+      var isAppStarted = false;
+
+      var isMob = isMobileMedia.matches;
+      var strawDir = isMob ? TUNING.STRAW_DIR_MOB : TUNING.STRAW_DIR_DESK;
+      var splashDir = isMob ? TUNING.SPLASH_DIR_MOB : TUNING.SPLASH_DIR_DESK;
+
+      function pad6(n) { var s = '000000' + n; return s.substring(s.length - 6); }
+      function pad4(n) { var s = '0000' + n; return s.substring(s.length - 4); }
+
+      var loaderEl = document.getElementById('loader');
+      var loaderBar = document.getElementById('loaderBar');
+      var loaderNum = document.getElementById('loaderNum');
+
+      function updateLoaderProgress() {
+        var pct = Math.min(100, Math.round((loadedAssets / totalAssets) * 100));
+        if (loaderBar) loaderBar.style.width = pct + '%';
+        if (loaderNum) loaderNum.textContent = pct + '%';
+      }
+
+      function checkAllComplete() {
+        if (loadedAssets >= totalAssets && !isAppStarted) {
+          startApp();
+        }
+      }
+
+      function loadFrame(src, targetArray, index, onFirstLoad) {
+        var img = new Image();
+        img.decoding = 'async';
+        img.onload = function () {
+          if (window.createImageBitmap) {
+            createImageBitmap(img).then(function (bmp) {
+              targetArray[index] = bmp;
+              img.src = ''; // Release source image memory buffer
+              loadedAssets++;
+              updateLoaderProgress();
+              if (onFirstLoad) onFirstLoad(index);
+              checkAllComplete();
+            }).catch(function () {
+              targetArray[index] = img;
+              loadedAssets++;
+              updateLoaderProgress();
+              if (onFirstLoad) onFirstLoad(index);
+              checkAllComplete();
+            });
+          } else {
+            targetArray[index] = img;
+            loadedAssets++;
+            updateLoaderProgress();
+            if (onFirstLoad) onFirstLoad(index);
+            checkAllComplete();
+          }
+        };
+        img.onerror = function () {
+          loadedAssets++;
+          updateLoaderProgress();
+          checkAllComplete();
+        };
+        img.src = src;
+      }
+
+      /* ================= Bottle Canvas Engine ================= */
+      var cvBottle = document.getElementById('bottle');
+      var ctxBottle = cvBottle ? cvBottle.getContext('2d') : null;
+      if (ctxBottle) {
+        ctxBottle.imageSmoothingEnabled = true;
+        ctxBottle.imageSmoothingQuality = 'medium';
+      }
+      var state = { f: 0 };
+      var SX = 472, SY = 6, SW = 336, SH = 708;
+      var lastBottleIdx = -1;
+
+      function renderBottle(targetIdx) {
+        if (!cvBottle || !ctxBottle) return;
+        if (targetIdx < 0) targetIdx = 0;
+        if (targetIdx >= TUNING.BOTTLE_FRAMES) targetIdx = TUNING.BOTTLE_FRAMES - 1;
+        if (targetIdx === lastBottleIdx) return; // Skip redundant canvas clear and draw
+
+        var img = bottleFrames[targetIdx];
+        if (!img) {
+          for (var d = 1; d < TUNING.BOTTLE_FRAMES; d++) {
+            var prev = (targetIdx - d + TUNING.BOTTLE_FRAMES) % TUNING.BOTTLE_FRAMES;
+            if (bottleFrames[prev]) { img = bottleFrames[prev]; break; }
+            var next = (targetIdx + d) % TUNING.BOTTLE_FRAMES;
+            if (bottleFrames[next]) { img = bottleFrames[next]; break; }
+          }
+          if (!img) return;
+        }
+
+        ctxBottle.clearRect(0, 0, cvBottle.width, cvBottle.height);
+        ctxBottle.drawImage(img, SX, SY, SW, SH, 0, 0, cvBottle.width, cvBottle.height);
+        lastBottleIdx = targetIdx;
+      }
+
+      function drawBottle(f) {
+        var p = (f <= 45) ? (f / 45) : ((f - 45) / 45);
+        var targetIdx = Math.floor(p * TUNING.BOTTLE_FRAMES);
+        if (targetIdx >= TUNING.BOTTLE_FRAMES) targetIdx = 0;
+        if (f === 45 || f === 90) targetIdx = 0;
+        renderBottle(targetIdx);
+      }
+
+      function sizeBottleCanvas() {
+        if (!cvBottle) return;
+        var bottlePosEl = document.getElementById('bottlePos');
+        var w = cvBottle.offsetWidth || (bottlePosEl ? bottlePosEl.offsetWidth : 320);
+        var h = cvBottle.offsetHeight || (bottlePosEl ? bottlePosEl.offsetHeight : 680);
+        var dpr = Math.min(window.devicePixelRatio || 1, isMobileMedia.matches ? TUNING.DPR_MOB : TUNING.DPR_DESK);
+        cvBottle.width = Math.max(2, Math.round(w * dpr));
+        cvBottle.height = Math.max(2, Math.round(h * dpr));
+        lastBottleIdx = -1; // force redraw on canvas resize
+        drawBottle(state.f);
+      }
+
+      /* ================= Splash Canvas Engine ================= */
+
+      /* ================= Fruit Config & Hierarchy ================= */
+      // type, left %, top vh (at mid-visibility), width vw, speed, in, out, blur px, rotation, front?, hide-on-mobile?, rotates?
+      var FR = [
+        // Scene 1: 0 - 34 (Hero section: ONLY 1 featured strawberry rotates [index 0], all others STATIC)
+        ['leaf', 0, 56, 21, 1.4, 0, 34, 0, -10, 1, 0, 1], // Hero left featured strawberry (ROTATES 360°)
+        ['berry', 9, 76, 12, 1.3, 0, 34, 0, 18, 1, 0, 0], // Mid strawberry (STATIC)
+        ['berry', 17, 66, 8, 1.2, 0, 34, 0, -25, 1, 1, 0], // Small left strawberry (STATIC)
+        ['half', 63, 67, 13, 1.2, 0, 34, 0, 20, 1, 0, 0], // Right mid strawberry (STATIC)
+        ['berry', 86, 50, 17, 1.4, 0, 34, 0, -18, 1, 0, 0], // Hero right strawberry (STATIC - beauty pose)
+        ['berry', 26, 22, 6.5, .7, 0, 34, 4, 10, 0, 1, 0], // Background blur (STATIC)
+        ['berry', 72, 9, 6.5, .7, 0, 34, 4, -30, 0, 0, 0], // Background blur (STATIC)
+
+        // Scene 2: 30 - 66 (ONLY 1 featured strawberry rotates [index 9], all others STATIC)
+        ['berry', 9, 22, 13, 0.8, 30, 66, 3, 15, 0, 0, 0], // Background blur (STATIC)
+        ['berry', 31, 18, 8, 1.1, 30, 66, 0, -20, 1, 1, 0], // Upper mid strawberry (STATIC)
+        ['half', 23, 60, 11, 1.2, 30, 66, 0, 24, 1, 0, 1], // Featured mid strawberry (ROTATES 360°)
+        ['berry', 67, 10, 11, 1.3, 30, 66, 0, 12, 1, 0, 0], // Upper right strawberry (STATIC)
+        ['berry', 81, 74, 8.5, .7, 30, 66, 4, -12, 0, 0, 0], // Lower right blur (STATIC)
+        ['half', 91, 8, 9.5, 1.2, 30, 66, 0, -35, 1, 1, 0], // Far right strawberry (STATIC)
+
+        // Scene 3: 76 - 100 (ONLY 1 featured strawberry rotates [index 14], all others STATIC)
+        ['berry', 2, 52, 12, 0.8, 76, 100, 3, 20, 0, 0, 0], // Far left strawberry (STATIC)
+        ['berry', 36, 84, 15, 1.4, 76, 100, 0, -15, 1, 0, 1], // Featured strawberry (ROTATES 360°)
+        ['berry', 60, 18, 8.5, 1.2, 76, 100, 0, 25, 1, 1, 0], // Upper right strawberry (STATIC)
+        ['leaf', 76, 78, 14, 1.3, 78, 100, 0, 10, 1, 0, 0], // Lower right strawberry (STATIC)
+        ['kiwi', 90, 46, 13, 1.4, 80, 100, 0, 0, 1, 0, 0], // Kiwi slice (STATIC)
+        ['half', 52, 64, 9.5, 1.2, 78, 100, 0, -20, 1, 1, 0]  // Mid strawberry (STATIC)
+      ];
+
+      var fruitEls = FR.map(function (c, i) {
+        var mid = (c[5] + (c[6] >= 100 ? 100 : c[6])) / 2;
+        var el = document.createElement('div');
+        el.className = 'fruit' + (c[10] ? ' xl' : '');
+        el.style.setProperty('--s', c[3]); el.style.setProperty('--b', c[7]);
+        el.style.left = c[1] + '%';
+        el.style.top = (c[2] + c[4] * 40 * mid / 100) + 'vh';
+
+        var fi = document.createElement('div'); fi.className = 'fruit-in';
+        var id = document.createElement('div'); id.className = 'fruit-idle';
+        id.style.transform = 'rotate(' + c[8] + 'deg)'; // initial tilt preserved
+
+        var isStrawberry = (c[0] !== 'kiwi');
+        var fruitCanvas = null;
+        var fruitCtx = null;
+
+        if (isStrawberry) {
+          fruitCanvas = document.createElement('canvas');
+          fruitCanvas.className = 'fruit-canvas';
+          fruitCanvas.setAttribute('aria-hidden', 'true');
+          fruitCtx = fruitCanvas.getContext('2d');
+          id.appendChild(fruitCanvas);
+
+          var fb = document.createElement('div');
+          fb.className = 'fruit-svg-fallback';
+          fb.style.display = 'none';
+          fb.innerHTML = berrySVG(c[0] === 'leaf', c[0] === 'half');
+          id.appendChild(fb);
+        } else {
+          id.innerHTML = c[0] === 'kiwi' ? kiwiSVG() : berrySVG(c[0] === 'leaf', c[0] === 'half');
+        }
+
+        fi.appendChild(id); el.appendChild(fi);
+        document.getElementById(c[9] ? 'fruitsFront' : 'fruitsBack').appendChild(el);
+
+        var rotDuration = gsap.utils.random(TUNING.STRAW_IDLE_SPEED_MIN, TUNING.STRAW_IDLE_SPEED_MAX);
+        var dir = Math.random() < 0.5 ? 1 : -1;
+        var canRotate = !!c[11];
+        // Curated front-facing beauty angles for static strawberries:
+        var beautyAngles = [0, 6, 12, 18, 72, 78, 84];
+        var phase = canRotate ? (Math.random() * TUNING.STRAW_FRAMES) : beautyAngles[i % beautyAngles.length];
+
+        return {
+          el: el,
+          fi: fi,
+          id: id,
+          fb: fb,
+          c: c,
+          isStrawberry: isStrawberry,
+          canRotate: canRotate,
+          canvas: fruitCanvas,
+          ctx: fruitCtx,
+          rotDuration: rotDuration,
+          dir: dir,
+          phase: phase,
+          lastFrame: -1
+        };
+      });
+
+      function sizeFruitCanvases() {
+        var dpr = Math.min(window.devicePixelRatio || 1, isMobileMedia.matches ? TUNING.DPR_MOB : TUNING.DPR_DESK);
+        fruitEls.forEach(function (o) {
+          if (o.isStrawberry && o.canvas) {
+            var w = o.el.offsetWidth || 50;
+            var h = w;
+            o.canvas.width = Math.max(2, Math.round(w * dpr));
+            o.canvas.height = Math.max(2, Math.round(h * dpr));
+            o.lastFrame = -1; // force redraw
+          }
+        });
+      }
+
+      var currentScrollProgress = 0;
+
+      function renderFruitsLoop() {
+        if (document.hidden || !isAppStarted) return;
+
+        var timeNow = performance.now() / 1000;
+        var scrollUnit = currentScrollProgress * 100;
+        var isMobile = isMob;
+
+        for (var i = 0; i < fruitEls.length; i++) {
+          var o = fruitEls[i];
+          if (!o.isStrawberry || !o.canvas || !o.ctx) continue;
+          // Skip hidden on mobile without triggering DOM layout reflow
+          if (isMobile && o.c[10]) continue;
+
+          // Static strawberry only draws once and then skips
+          if (!o.canRotate && o.lastFrame !== -1) continue;
+
+          var inUnit = o.c[5];
+          var outUnit = o.c[6];
+          // Draw fruit only when inside its fade window
+          if (scrollUnit < inUnit - 2 || scrollUnit > outUnit + 2) {
+            continue;
+          }
+
+          var frameIndex;
+          if (o.canRotate && !reduce) {
+            var idleProgress = (timeNow / o.rotDuration * o.dir) % 1;
+            var idleFrame = o.phase + idleProgress * TUNING.STRAW_FRAMES;
+            var boost = currentScrollProgress * TUNING.STRAW_SCROLL_BOOST * TUNING.STRAW_FRAMES;
+            var total = idleFrame + boost;
+            frameIndex = Math.floor(total) % TUNING.STRAW_FRAMES;
+            frameIndex = ((frameIndex % TUNING.STRAW_FRAMES) + TUNING.STRAW_FRAMES) % TUNING.STRAW_FRAMES;
+          } else {
+            frameIndex = Math.floor(o.phase) % TUNING.STRAW_FRAMES;
+          }
+
+          if (frameIndex === o.lastFrame) {
+            continue; // Skip if rounded frame did not change
+          }
+
+          var img = strawFrames[frameIndex];
+          if (!img) {
+            for (var d = 1; d < TUNING.STRAW_FRAMES; d++) {
+              var prev = (frameIndex - d + TUNING.STRAW_FRAMES) % TUNING.STRAW_FRAMES;
+              if (strawFrames[prev]) { img = strawFrames[prev]; break; }
+              var next = (frameIndex + d) % TUNING.STRAW_FRAMES;
+              if (strawFrames[next]) { img = strawFrames[next]; break; }
+            }
+          }
+
+          if (img) {
+            o.ctx.clearRect(0, 0, o.canvas.width, o.canvas.height);
+            o.ctx.drawImage(img, 0, 0, o.canvas.width, o.canvas.height);
+            if (strawFrames[frameIndex]) {
+              o.lastFrame = frameIndex;
+            }
+            if (o.canvas.style.display === 'none') {
+              o.canvas.style.display = 'block';
+              if (o.fb) o.fb.style.display = 'none';
+            }
+          } else if (allAssetsReady) {
+            if (o.fb) {
+              o.fb.style.display = 'block';
+              o.canvas.style.display = 'none';
+            }
+          }
+        }
+      }
+
+      /* ================= Start Shared Frame Preloading ================= */
+      // Bottle frames
+      for (var b = 0; b < TUNING.BOTTLE_FRAMES; b++) {
+        loadFrame(TUNING.BOTTLE_DIR + 'frame_' + pad6(b + 1) + '.png', bottleFrames, b, function (idx) {
+          if (idx === 0) drawBottle(state.f);
+        });
+      }
+
+      // Strawberry frames
+      for (var s = 0; s < TUNING.STRAW_FRAMES; s++) {
+        loadFrame(strawDir + 'frame_' + pad4(s + 1) + '.webp', strawFrames, s);
+      }
+
+      // Preload Milk Wave image
+      var milkWave = new Image();
+      milkWave.onload = milkWave.onerror = function () {
+        loadedAssets++;
+        updateLoaderProgress();
+        checkAllComplete();
+      };
+      milkWave.src = 'assets/milk_wave.webp';
+
+      /* ================= Master Timeline & Scroll ================= */
+      if (!(window.gsap && window.ScrollTrigger)) { return; }
+      gsap.registerPlugin(ScrollTrigger);
+
+      var lenis = null;
+      if (window.Lenis && !reduce) {
+        lenis = new Lenis({
+          lerp: 0.1,
+          smoothWheel: true,
+          wheelMultiplier: 1.0,
+          touchMultiplier: 1.5
+        });
+        lenis.on('scroll', ScrollTrigger.update);
+        gsap.ticker.add(function (time) { lenis.raf(time * 1000); });
+        gsap.ticker.lagSmoothing(500, 33);
+      }
+
+      var journey = document.getElementById('journey');
+      function goTo(frac) {
+        var range = journey.offsetHeight - window.innerHeight;
+        var y = journey.offsetTop + range * frac;
+        if (lenis) lenis.scrollTo(y, { duration: 1.6 }); else window.scrollTo({ top: y, behavior: reduce ? 'auto' : 'smooth' });
+      }
+      document.querySelectorAll('[data-go]').forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+          var v = btn.getAttribute('data-go');
+          e.preventDefault();
+          if (v === 'end') {
+            var s = document.getElementById('shop');
+            var y = s.getBoundingClientRect().top + window.scrollY;
+            if (lenis) lenis.scrollTo(y, { duration: 1.8 }); else window.scrollTo({ top: y, behavior: 'smooth' });
+          } else {
+            goTo(parseFloat(v));
+          }
+        });
+      });
+
+      var CREAM = 'rgb(255,243,238)', WINE = 'rgb(122,15,43)';
+      var hdr = document.getElementById('hdr');
+      gsap.set('#waveCream', { y: '36vh' });
+      gsap.set('#waveWine', { y: '112vh' });
+      gsap.set(hdr, { '--hfg': CREAM, '--hcta-bg': CREAM, '--hcta-fg': WINE, '--hpill': 'rgba(255,243,238,.14)' });
+
+      var mm = gsap.matchMedia();
+      mm.add({ desk: '(min-width:1024px)', tab: '(min-width:768px) and (max-width:1023px)', mob: '(max-width:767px)' }, function (c) {
+        var desk = c.conditions.desk, tab = c.conditions.tab, mob = c.conditions.mob;
+        var L = desk ? -32 : (tab ? -22 : -10), Rr = desk ? 30 : (tab ? 20 : 10);
+        var tl = gsap.timeline({
+          defaults: { ease: 'none' },
+          scrollTrigger: {
+            trigger: journey,
+            start: 'top top',
+            end: 'bottom bottom',
+            scrub: .25,
+            invalidateOnRefresh: true,
+            onUpdate: function (self) {
+              currentScrollProgress = self.progress;
+            }
+          }
+        });
+        var pos = '#bottlePos', io = 'power2.inOut';
+
+        // bottle motion
+        tl.to(pos, { x: L + 'vw', rotation: -14, duration: 40, ease: io }, 0);
+        tl.to(pos, { x: Rr + 'vw', duration: 45, ease: io }, 55);
+        tl.to(pos, { rotation: 12, duration: 30, ease: io }, 55);
+        tl.to(pos, { rotation: 0, duration: 15, ease: 'power2.out' }, 85);
+        if (mob) { tl.to(pos, { y: '-16vh', duration: 40, ease: io }, 0); }
+        tl.to(state, { f: 45, duration: 40, ease: io, onUpdate: function () { drawBottle(state.f); } }, 0);
+        tl.to(state, { f: 90, duration: 45, ease: io, onUpdate: function () { drawBottle(state.f); } }, 55);
+
+        // milk splash scroll choreography: visible in scene 1 (0-34), dynamic reaction to bottle scroll tilt, then fades
+        tl.to('#milkWaveImg', { scale: 1.12, rotation: 10, y: -18, duration: 18, ease: 'power1.out' }, 0);
+        tl.to('#milkWaveImg', { scale: 0.88, rotation: -6, y: 12, duration: 16, ease: 'power1.inOut' }, 18);
+        tl.to('.splash', { opacity: 0, scale: .35, duration: 11, ease: 'power2.in' }, 34);
+        tl.to('.splash', { opacity: .9, scale: .75, duration: 18, ease: 'power2.out' }, 82);
+
+        // background
+        tl.to('#waveCream', { y: '-45vh', duration: 40, ease: io }, 0);
+        tl.to('#waveWine', { y: '-36vh', duration: 30, ease: io }, 60);
+        tl.to('#glow', { opacity: .5, duration: 40 }, 0).to('#glow', { opacity: .18, duration: 30 }, 60);
+
+        // copy
+        tl.to('#s1', { autoAlpha: 0, y: -60, duration: 18 }, 0);
+        tl.to('#cue', { autoAlpha: 0, duration: 8 }, 0);
+        tl.fromTo('#s2', { autoAlpha: 0, x: 60 }, { autoAlpha: 1, x: 0, duration: 12 }, 26);
+        tl.to('#s2', { autoAlpha: 0, x: -40, duration: 10 }, 56);
+        tl.fromTo('#s3', { autoAlpha: 0, y: 50 }, { autoAlpha: 1, y: 0, duration: 14 }, 82);
+        tl.fromTo('#price', { autoAlpha: 0, scale: .6, rotation: -18 }, { autoAlpha: 1, scale: 1, rotation: -8, duration: 12, ease: 'back.out(1.7)' }, 86);
+
+        // header colours
+        tl.to(hdr, { '--hfg': WINE, '--hcta-bg': WINE, '--hcta-fg': CREAM, '--hpill': 'rgba(122,15,43,.1)', duration: 12 }, 22);
+        tl.to(hdr, { '--hfg': CREAM, '--hcta-bg': CREAM, '--hcta-fg': WINE, '--hpill': 'rgba(255,243,238,.14)', duration: 12 }, 70);
+
+        // fruit parallax drift & fade windows
+        fruitEls.forEach(function (o) {
+          var cf = o.c;
+          tl.to(o.el, { y: (-cf[4] * 40) + 'vh', duration: 100, ease: 'none' }, 0);
+          if (cf[5] > 0) tl.fromTo(o.fi, { opacity: 0, scale: .6 }, { opacity: 1, scale: 1, duration: 8, ease: 'back.out(1.4)' }, cf[5]);
+          if (cf[6] < 100) tl.to(o.fi, { opacity: 0, scale: .8, duration: 8 }, cf[6]);
+        });
+        tl.set({}, {}, 100);
+        return function () { tl.kill(); };
+      });
+
+      // Dedicated ticker loop for strawberry rotation
+      gsap.ticker.add(renderFruitsLoop);
+
+      /* ================= Phase A (Intro) & Phase B (Idle) ================= */
+      function startIntroTimeline() {
+        var intro = gsap.timeline({
+          defaults: { duration: 1.8 },
+          onComplete: function () {
+            startIdleBreathing();
+          }
+        });
+
+        intro.from('#bgIntro', { scale: 1.08, duration: 1.8, ease: 'power2.out' }, 0)
+          .from('#bottleIntro', { scale: .6, y: 120, opacity: 0, ease: 'power4.out' }, 0)
+          .from('#splashBack', { scale: 0.15, opacity: 0, y: 70, duration: 1.8, ease: 'back.out(2.4)' }, 0.08)
+          .from('#milkWaveImg', { rotation: -18, scale: 0.55, opacity: 0, duration: 2.0, ease: 'elastic.out(1.15, 0.55)' }, 0.12)
+          .from('.hdr', { opacity: 0, duration: 1.2 }, .3)
+          .from('#heroTitle', { opacity: 0, letterSpacing: '.12em', duration: 1.4, ease: 'power2.out' }, .4)
+          .from('#heroWord', { opacity: 0, letterSpacing: '.12em', duration: 1.4, ease: 'power2.out' }, .55)
+          .from('#cue', { opacity: 0, duration: 1 }, 1);
+
+        fruitEls.forEach(function (o, i) {
+          var fromLeft = parseFloat(o.c[1]) < 50;
+          intro.from(o.fi, { x: (fromLeft ? -120 : 120) + 'vw', duration: 1.6, ease: 'back.out(1.7)' }, .1 + (i % 5) * .08);
+        });
+
+        if (reduce) {
+          intro.progress(1);
+        }
+      }
+
+      function startIdleBreathing() {
+        if (reduce) return;
+
+        // Bottle idle floating bob
+        gsap.to('#bottleFloat', { y: 15, rotation: 1.5, duration: 3.2, ease: 'sine.inOut', yoyo: true, repeat: -1, startAt: { y: -15, rotation: -1.5 } });
+
+        // Hero Milk Splash: Dynamic Organic Liquid Wave Motion
+        // Layer 1: Swirling wave pulsation and organic tilt on #milkWaveImg
+        gsap.to('#milkWaveImg', {
+          scaleX: 1.06,
+          scaleY: 1.04,
+          rotation: 3.5,
+          y: 9,
+          duration: 2.8,
+          ease: 'sine.inOut',
+          yoyo: true,
+          repeat: -1,
+          transformOrigin: '46% 72%'
+        });
+
+        // Layer 2: Counter-harmonic surge & spread on .pulse (creates non-repeating fluid swell)
+        gsap.to('.pulse', {
+          scaleX: 0.96,
+          scaleY: 1.04,
+          rotation: -2.6,
+          x: -6,
+          duration: 3.8,
+          ease: 'sine.inOut',
+          yoyo: true,
+          repeat: -1,
+          transformOrigin: '50% 80%'
+        });
+
+        // Layer 3: Organic floating vertical liquid surge on #splashBack
+        gsap.to('#splashBack', {
+          y: 7,
+          duration: 3.4,
+          ease: 'sine.inOut',
+          yoyo: true,
+          repeat: -1
+        });
+
+        // Layer 4: Interactive cursor & click reactions for hero milk splash & bottle
+        var splashBackEl = document.getElementById('splashBack');
+        if (splashBackEl && !reduce) {
+          var pTicking = false;
+          var lastPx = 0, lastPy = 0;
+          window.addEventListener('pointermove', function (e) {
+            if (currentScrollProgress > 0.15) return;
+            lastPx = (e.clientX / window.innerWidth - 0.5) * 2;
+            lastPy = (e.clientY / window.innerHeight - 0.5) * 2;
+            if (!pTicking) {
+              pTicking = true;
+              requestAnimationFrame(function () {
+                gsap.to(splashBackEl, {
+                  x: lastPx * 14,
+                  y: lastPy * 10,
+                  duration: 1.2,
+                  ease: 'power2.out',
+                  overwrite: 'auto'
+                });
+                pTicking = false;
+              });
+            }
+          }, { passive: true });
+        }
+
+        if (cvBottle && !reduce) {
+          cvBottle.style.cursor = 'pointer';
+          cvBottle.addEventListener('click', function () {
+            gsap.fromTo('#milkWaveImg',
+              { scale: 0.94, rotation: -6 },
+              {
+                scale: 1.12, rotation: 4, duration: 0.5, ease: 'back.out(2.5)', onComplete: function () {
+                  gsap.to('#milkWaveImg', { scale: 1, rotation: 0, duration: 0.7, ease: 'power2.out' });
+                }
+              }
+            );
+          });
+        }
+
+        // Wave subtle idle drift
+        gsap.to('#bgIntro .wave svg', { x: 18, duration: 5, ease: 'sine.inOut', yoyo: true, repeat: -1 });
+
+        // Fruit idle vertical bob (rotation handled continuously by frames inside ticker loop)
+        fruitEls.forEach(function (o) {
+          gsap.to(o.id, { y: gsap.utils.random(6, 12), duration: gsap.utils.random(2.4, 4), ease: 'sine.inOut', yoyo: true, repeat: -1 });
+        });
+      }
+
+      function startApp() {
+        if (isAppStarted) return;
+        isAppStarted = true;
+        allAssetsReady = true;
+
+        if (loaderEl) {
+          loaderEl.classList.add('is-loaded');
+          setTimeout(function () {
+            if (loaderEl && loaderEl.parentNode) loaderEl.parentNode.removeChild(loaderEl);
+          }, 700);
+        }
+
+        sizeBottleCanvas();
+        sizeFruitCanvases();
+
+        startIntroTimeline();
+        ScrollTrigger.refresh();
+      }
+
+      // Safety fallback: if any frame fails or is slow, start gracefully after 5s
+      setTimeout(function () {
+        if (!isAppStarted) {
+          startApp();
+        }
+      }, 5000);
+
+      function handleResize() {
+        isMob = isMobileMedia.matches;
+        lastBottleIdx = -1;
+        sizeBottleCanvas();
+        sizeFruitCanvases();
+      }
+      isMobileMedia.addEventListener('change', function (e) { isMob = e.matches; });
+      window.addEventListener('resize', handleResize);
+      window.addEventListener('load', function () { ScrollTrigger.refresh(); });
+    })();
+  </script>
+
+</body>
+
+</html>
